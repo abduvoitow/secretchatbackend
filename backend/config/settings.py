@@ -5,7 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = '(y4$+q@gyva$8l-ev15@0!y(ocher+ye_zkw3v9bj068e8_2=d'
 DEBUG = True
-ALLOWED_HOSTS = ['secretchatbackend.onrender.com']
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'daphne',  # WebSocket uchun
@@ -73,7 +73,6 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # Production uchun
 
 MEDIA_URL = 'media/'
