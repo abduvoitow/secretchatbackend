@@ -5,7 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = '(y4$+q@gyva$8l-ev15@0!y(ocher+ye_zkw3v9bj068e8_2=d'
 DEBUG = True
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['secretchatbackend.onrender.com']
 
 INSTALLED_APPS = [
     'daphne',  # WebSocket uchun
