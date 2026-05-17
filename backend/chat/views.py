@@ -108,38 +108,3 @@ def logout_view(request):
         UserStatus.objects.filter(username=user).update(is_online=False, last_seen=timezone.now())
         del request.session['user']
     return redirect('/')
-
-def serve_react(request, path=''):
-    dist_dir = os.path.join(settings.BASE_DIR, 'static', 'dist')
-    if not path or path == '/':
-        path = 'index.html'
-    
-    file_path = os.path.join(dist_dir, path)
-    if os.path.exists(file_path) and os.path.isfile(file_path):
-        with open(file_path, 'rb') as f:
-            content = f.read()
-        
-        # Mime-type detection
-        content_type = 'text/html'
-        if path.endswith('.js'):
-            content_type = 'application/javascript'
-        elif path.endswith('.css'):
-            content_type = 'text/css'
-        elif path.endswith('.svg'):
-            content_type = 'image/svg+xml'
-        elif path.endswith('.png'):
-            content_type = 'image/png'
-        elif path.endswith('.jpg') or path.endswith('.jpeg'):
-            content_type = 'image/jpeg'
-        elif path.endswith('.ico'):
-            content_type = 'image/x-icon'
-        
-        return HttpResponse(content, content_type=content_type)
-    
-    # Fallback to index.html for React SPA Router
-    index_path = os.path.join(dist_dir, 'index.html')
-    if os.path.exists(index_path):
-        with open(index_path, 'rb') as f:
-            return HttpResponse(f.read(), content_type='text/html')
-            
-    raise Http404("React build static file not found. Please run npm run build inside frontend first.")

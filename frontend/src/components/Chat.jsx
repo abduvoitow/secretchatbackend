@@ -193,7 +193,16 @@ const Chat = ({ user, onLogout }) => {
     fetchInitialMessages()
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const socketUrl = `${protocol}//${window.location.host}/ws/chat/`
+    let wsHost = window.location.host
+    let wsProtocol = protocol
+    if (import.meta.env.VITE_API_BASE_URL) {
+      try {
+        const url = new URL(import.meta.env.VITE_API_BASE_URL)
+        wsHost = url.host
+        wsProtocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
+      } catch (e) {}
+    }
+    const socketUrl = `${wsProtocol}//${wsHost}/ws/chat/`
     const sendStatusUpdate = (isOnline) => {
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
         socketRef.current.send(JSON.stringify({ type: 'status_change', username: user, is_online: isOnline }))

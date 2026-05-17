@@ -6,6 +6,6 @@
 **/*.pyc
 **/__pycache__
 backend/db.sqlite3
-frontend/dist
+frontend/
 .gemini
 *.log
