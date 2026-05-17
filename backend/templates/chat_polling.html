@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - {{ user }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background: #0f1419;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: #1c2938;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+            border-bottom: 1px solid #2d3e50;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .chat-info h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .chat-info p {
+            font-size: 13px;
+            color: #8899a6;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+        }
+        
+        .chat-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #0f1419;
+        }
+        
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(255,255,255,0.01) 10px,
+                    rgba(255,255,255,0.01) 20px
+                );
+        }
+        
+        .message {
+            margin-bottom: 12px;
+            display: flex;
+            animation: messageSlide 0.3s ease-out;
+            flex-shrink: 0;
+        }
+        
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.other-message {
+            justify-content: flex-start;
+        }
+        
+        .message.my-message {
+            justify-content: flex-end;
+        }
+        
+        .message-bubble {
+            max-width: 70%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            word-break: break-word;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .message.other-message .message-bubble {
+            background: #1c2938;
+            color: #e1e8ed;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message.my-message .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .sender-name {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+            opacity: 0.9;
+        }
+        
+        .message-content {
+            font-size: 15px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+        
+        .message-meta {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            opacity: 0.7;
+            justify-content: flex-end;
+            margin-top: 2px;
+        }
+        
+        .message-time {
+            white-space: nowrap;
+        }
+        
+        .check-marks {
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .check {
+            font-size: 16px;
+            line-height: 1;
+        }
+        
+        .check.read {
+            color: #34b7f1;
+        }
+        
+        .check.sent {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .message.other-message .check {
+            display: none;
+        }
+        
+        .no-messages {
+            text-align: center;
+            color: #8899a6;
+            padding: 60px 20px;
+            font-size: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .no-messages-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .input-container {
+            flex-shrink: 0;
+            background: #1c2938;
+            padding: 16px 20px;
+            border-top: 1px solid #2d3e50;
+        }
+        
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        #messageInput {
+            flex: 1;
+            background: #0f1419;
+            border: 2px solid #2d3e50;
+            color: #e1e8ed;
+            padding: 12px 16px;
+            border-radius: 24px;
+            font-size: 15px;
+            transition: all 0.2s;
+            resize: none;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        #messageInput:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #151b23;
+        }
+        
+        #messageInput::placeholder {
+            color: #5c6e7e;
+        }
+        
+        #sendBtn {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #sendBtn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        #sendBtn:active {
+            transform: scale(0.95);
+        }
+        
+        .messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .messages::-webkit-scrollbar-thumb {
+            background: #2d3e50;
+            border-radius: 4px;
+        }
+        
+        .messages::-webkit-scrollbar-thumb:hover {
+            background: #3d4e60;
+        }
+        
+        @media (max-width: 768px) {
+            .header { padding: 10px 16px; }
+            .avatar { width: 38px; height: 38px; font-size: 16px; }
+            .chat-info h2 { font-size: 15px; }
+            .chat-info p { font-size: 12px; }
+            .messages { padding: 16px; }
+            .message-bubble { max-width: 85%; padding: 8px 12px; }
+            .message-content { font-size: 14px; }
+            .input-container { padding: 12px 16px; }
+            #messageInput { font-size: 14px; padding: 10px 14px; }
+            #sendBtn { width: 40px; height: 40px; font-size: 18px; }
+        }
+        
+        @media (max-width: 480px) {
+            .header-left { gap: 8px; }
+            .messages { padding: 12px; }
+            .message-bubble { max-width: 90%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="avatar">{{ user }}</div>
+            <div class="chat-info">
+                <h2>Anonim Chat</h2>
+                <p>{% if user == 'K' %}D{% else %}K{% endif %} bilan suhbat</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn" onclick="lockChat()" title="Chatni qulflash">
+                🔒
+            </button>
+        </div>
+    </div>
+    
+    <div class="chat-wrapper">
+        <div class="messages" id="messages">
+            {% if messages %}
+                {% for msg in messages %}
+                <div class="message {% if msg.sender == user %}my-message{% else %}other-message{% endif %}" data-message-id="{{ msg.id }}">
+                    <div class="message-bubble">
+                        <div class="sender-name">{{ msg.sender }}</div>
+                        <div class="message-content">{{ msg.content }}</div>
+                        <div class="message-meta">
+                            <span class="message-time">{{ msg.timestamp|date:"H:i" }}</span>
+                            {% if msg.sender == user %}
+                            <span class="check-marks">
+                                {% if msg.is_read %}
+                                <span class="check read">✓✓</span>
+                                {% else %}
+                                <span class="check sent">✓</span>
+                                {% endif %}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-messages">
+                    <div class="no-messages-icon">💬</div>
+                    <div>Xabarlar yo'q</div>
+                    <div style="margin-top: 8px; opacity: 0.7;">Birinchi bo'lib yozing!</div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="input-container">
+            <div class="input-wrapper">
+                <textarea id="messageInput" placeholder="Xabar yozing..." rows="1" autofocus></textarea>
+                <button id="sendBtn">➤</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const user = "{{ user }}";
+        let lastMessageId = {{ messages|length }} > 0 ? {{ messages|last }}.id : 0;
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+        
+        // Polling - Yangi xabarlarni olish
+        function pollMessages() {
+            fetch('/api/get-new-messages/?last_id=' + lastMessageId)
+                .then(res => res.json())
+                .then(data => {
+                    // Yangi xabarlar
+                    data.messages.forEach(msg => {
+                        addMessage(msg.sender, msg.content, msg.id, msg.timestamp, msg.is_read);
+                        lastMessageId = Math.max(lastMessageId, msg.id);
+                    });
+                    
+                    // O'qilgan statusni yangilash
+                    Object.keys(data.read_updates || {}).forEach(msgId => {
+                        updateMessageReadStatus(msgId, data.read_updates[msgId]);
+                    });
+                })
+                .catch(err => console.error('Polling error:', err));
+        }
+        
+        // Har 2 soniyada yangilash
+        setInterval(pollMessages, 2000);
+        
+        // Xabar yuborish
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message === '') return;
+            
+            fetch('/api/send-message/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const msg = data.message;
+                    addMessage(msg.sender, msg.content, msg.id, msg.timestamp, msg.is_read);
+                    lastMessageId = Math.max(lastMessageId, msg.id);
+                    messageInput.value = '';
+                    messageInput.style.height = 'auto';
+                    messageInput.focus();
+                }
+            })
+            .catch(err => console.error('Send error:', err));
+        }
+        
+        // Xabarni DOM ga qo'shish
+        function addMessage(sender, content, messageId, time, isRead) {
+            const noMessages = messagesDiv.querySelector('.no-messages');
+            if (noMessages) {
+                noMessages.remove();
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + (sender === user ? 'my-message' : 'other-message');
+            messageDiv.setAttribute('data-message-id', messageId);
+            
+            let checkMarks = '';
+            if (sender === user) {
+                checkMarks = isRead 
+                    ? '<span class="check read">✓✓</span>'
+                    : '<span class="check sent">✓</span>';
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="message-bubble">
+                    <div class="sender-name">${sender}</div>
+                    <div class="message-content">${escapeHtml(content)}</div>
+                    <div class="message-meta">
+                        <span class="message-time">${time}</span>
+                        ${sender === user ? `<span class="check-marks">${checkMarks}</span>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        // O'qilgan statusni yangilash
+        function updateMessageReadStatus(msgId, isRead) {
+            const msg = messagesDiv.querySelector(`[data-message-id="${msgId}"]`);
+            if (msg && msg.classList.contains('my-message')) {
+                const checkMarks = msg.querySelector('.check-marks');
+                if (checkMarks && isRead) {
+                    checkMarks.innerHTML = '<span class="check read">✓✓</span>';
+                }
+            }
+        }
+        
+        // HTML escape
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Event listeners
+        document.getElementById('sendBtn').onclick = sendMessage;
+        
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Chatni qulflash
+        function lockChat() {
+            window.location.href = '/logout/';
+        }
+        
+        // Sahifa yuklanganda
+        window.onload = function() {
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            pollMessages(); // Darhol tekshirish
+        };
+        
+        // 5 daqiqa faolsizlik
+        let inactivityTime = 0;
+        const maxInactivity = 5 * 60 * 1000;
+        
+        function resetTimer() {
+            inactivityTime = 0;
+        }
+        
+        document.onmousemove = resetTimer;
+        document.onkeypress = resetTimer;
+        document.onclick = resetTimer;
+        document.onscroll = resetTimer;
+        
+        setInterval(function() {
+            inactivityTime += 1000;
+            if (inactivityTime >= maxInactivity) {
+                alert('5 daqiqa faolsizlik. Qayta parol kiriting.');
+                window.location.href = '/logout/';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
