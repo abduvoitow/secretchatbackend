@@ -87,3 +87,9 @@ SESSION_SAVE_EVERY_REQUEST = True
 # CORS settings for separate frontend
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+# Cross-site Session and CSRF cookie settings (For Surge frontend to Render backend communication)
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
