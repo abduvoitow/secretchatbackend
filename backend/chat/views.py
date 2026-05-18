@@ -44,7 +44,9 @@ def api_check_auth(request):
 
 def get_new_messages(request):
     """React uchun barcha xabarlarni olish"""
-    if 'user' not in request.session:
+    # Get user from custom header or query parameters to bypass third-party cookie restrictions
+    user = request.headers.get('X-Chat-User') or request.GET.get('user') or request.session.get('user')
+    if not user:
         return JsonResponse({'error': 'Unauthorized'}, status=401)
     
     messages = Message.objects.all().order_by('timestamp')
@@ -80,14 +82,15 @@ def get_new_messages(request):
 @csrf_exempt
 def api_upload_image(request):
     """React uchun rasm yuklash API"""
-    if 'user' not in request.session:
+    user = request.headers.get('X-Chat-User') or request.POST.get('user') or request.session.get('user')
+    if not user:
         return JsonResponse({'error': 'Unauthorized'}, status=401)
     
     if request.method == 'POST' and request.FILES.get('image'):
         try:
             image_file = request.FILES['image']
             msg = Message.objects.create(
-                sender=request.session['user'],
+                sender=user,
                 content="[Rasm]",
                 image=image_file
             )
