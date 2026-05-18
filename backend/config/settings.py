@@ -92,7 +92,6 @@ from corsheaders.defaults import default_headers
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'x-chat-user',
 ]
-
 # Cross-site Session and CSRF cookie settings (For Surge frontend to Render backend communication)
 SESSION_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True
