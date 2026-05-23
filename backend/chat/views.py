@@ -42,6 +42,22 @@ def api_check_auth(request):
         return JsonResponse({'logged_in': True, 'user': request.session['user']})
     return JsonResponse({'logged_in': False})
 
+def get_user_status(request):
+    """Foydalanuvchilarning onlayn holati va oxirgi faolligini olish (Yengil va tezkor so'rov)"""
+    user = request.headers.get('X-Chat-User') or request.GET.get('user') or request.session.get('user')
+    if not user:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    threshold = timezone.now() - timezone.timedelta(seconds=20)
+    last_seen_data = {us.username: timezone.localtime(us.last_seen).isoformat() for us in UserStatus.objects.all()}
+    online_users = list(UserStatus.objects.filter(is_online=True, last_seen__gte=threshold).values_list('username', flat=True))
+    
+    return JsonResponse({
+        'online_users': online_users,
+        'last_seen': last_seen_data
+    })
+
+
 def get_new_messages(request):
     """React uchun barcha xabarlarni olish"""
     # Get user from custom header or query parameters to bypass third-party cookie restrictions

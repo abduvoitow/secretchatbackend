@@ -199,10 +199,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def update_user_status(self, username, is_online):
-        UserStatus.objects.update_or_create(
-            username=username,
-            defaults={'is_online': is_online, 'last_seen': timezone.now()}
-        )
+        now = timezone.now()
+        try:
+            status = UserStatus.objects.get(username=username)
+            # DB yukini kamaytirish: status o'zgarmagan bo'lsa va 15 soniya ichida yangilangan bo'lsa yozishni o'tkazib yuboramiz
+            if status.is_online == is_online and (now - status.last_seen).total_seconds() < 15:
+                return
+            status.is_online = is_online
+            status.last_seen = now
+            status.save(update_fields=['is_online', 'last_seen'])
+        except UserStatus.DoesNotExist:
+            UserStatus.objects.create(username=username, is_online=is_online, last_seen=now)
 
     @database_sync_to_async
     def get_all_user_statuses(self):
