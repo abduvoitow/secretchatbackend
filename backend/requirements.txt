@@ -3,3 +3,6 @@ channels==4.0.0
 daphne==4.0.0
 django-cors-headers==4.3.1
 Pillow==10.2.0
+dj-database-url==2.1.0
+psycopg2-binary==2.9.9
+
